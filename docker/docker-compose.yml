@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  ros_melodic:
+    build: .
+    container_name: ros_melodic_test
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/workspace  # 挂载当前目录到容器
+    working_dir: /workspace
