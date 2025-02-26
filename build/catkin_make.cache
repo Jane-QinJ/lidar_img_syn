@@ -1,0 +1,2 @@
+sensor_syn/lidar_img_syn_lmx
+-DCATKIN_DEVEL_PREFIX=/home/janeqin/code/lidar_img_syn_ws/devel -DCMAKE_INSTALL_PREFIX=/home/janeqin/code/lidar_img_syn_ws/install -G Unix Makefiles

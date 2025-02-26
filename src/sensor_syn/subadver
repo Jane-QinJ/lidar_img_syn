@@ -1,0 +1,127 @@
+#define _SILENCE_FPOS_SEEKPOS_DEPRECATION_WARNING
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<Windows.h>
+#include<direct.h>
+#include<fstream>
+#include<sstream>
+
+#include<Shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+
+#include <opencv2\opencv.hpp>      
+#include<opencv2/core/types.hpp>
+#include<opencv2/core/core.hpp>
+#include <pcl/io/pcd_io.h>
+#include<pcl/io/ply_io.h>
+
+using namespace pcl;
+using namespace cv;
+using namespace std;
+
+
+class FileOperation
+{
+public:
+	FileOperation();
+	~FileOperation();
+public:
+	void saveDataInFolder(string initFolderName,vector<Mat>&leftImgs, vector<Mat>&rightImgs, PointCloud<PointXYZRGB>&resultCloud);
+private:
+	string WORD2string(WORD w);
+	bool IsFolderExist(string strName);
+	string getCurTimeString();
+	string getCurTimeStringInf();
+};
+FileOperation::FileOperation()
+{
+}
+FileOperation::~FileOperation()
+{
+}
+
+
+string FileOperation::WORD2string(WORD w)
+{
+	char tmpbuff[16];
+	sprintf_s(tmpbuff, "%d", w);
+	string res = tmpbuff;
+	return res;
+}
+
+string FileOperation::getCurTimeString()
+{
+	SYSTEMTIME curTime;
+	GetLocalTime(&curTime);
+	string curTimestr= WORD2string(curTime.wYear)+ WORD2string(curTime.wMonth) + WORD2string(curTime.wDay) + WORD2string(curTime.wHour) +  WORD2string(curTime.wMinute)  + WORD2string(curTime.wSecond);
+	return curTimestr;
+}
+
+string FileOperation::getCurTimeStringInf()
+{
+	SYSTEMTIME curTime;
+	GetLocalTime(&curTime);
+	string curTimestr = WORD2string(curTime.wYear)+"年" + WORD2string(curTime.wMonth) + "月" + WORD2string(curTime.wDay) + "日" + WORD2string(curTime.wHour) + "时" + WORD2string(curTime.wMinute) + "分" + WORD2string(curTime.wSecond) + "秒";
+	return curTimestr;
+}
+
+bool FileOperation::IsFolderExist(string strName)
+{
+	size_t size = strName.length();
+	wchar_t *buffer = new wchar_t[size + 1];
+	MultiByteToWideChar(CP_ACP, 0, strName.c_str(), size, buffer, size * sizeof(wchar_t));
+	buffer[size] = 0;  // 确保以 '\0' 结尾 
+	BOOL bExist = PathIsDirectory(buffer);
+	delete buffer;
+	return bExist == FALSE ? false : true;
+}
+
+void FileOperation::saveDataInFolder(string initFolderName, vector<Mat>&leftImgs, vector<Mat>&rightImgs, PointCloud<PointXYZRGB>&resultCloud)
+{
+	bool isinitFolderExit = IsFolderExist(initFolderName);//判断根文件夹是否存在
+	if (!isinitFolderExit)
+	{
+		_mkdir(initFolderName.c_str());//如果根文件夹不存在则创建
+	}
+	string firstTime = getCurTimeStringInf();
+	string firstTimestr = getCurTimeString();
+	string dirName = initFolderName + "\\" + firstTime;
+	_mkdir(dirName.c_str());//创建实时文件夹
+	for (int i = 0; i < leftImgs.size(); i++)
+	{
+		imwrite(dirName + format("\\left%d.bmp", i), leftImgs[i]);
+	}
+	for (int i = 0; i < rightImgs.size(); i++)
+	{
+		imwrite(dirName + format("\\right%d.bmp", i), rightImgs[i]);
+	}
+	pcl::io::savePCDFile(dirName + "\\"+ firstTimestr +".pcd", resultCloud);
+	pcl::io::savePLYFile(dirName + "\\" + firstTimestr + ".ply", resultCloud);
+	std::ofstream fout(dirName + "\\log.txt");
+	fout << "本文件夹创建时间为:" + firstTime + "\n";
+	fout << "本文件夹存完数据时间为:" + getCurTimeStringInf() + "\n";
+	fout.close();
+}
+
+
+int main()
+{
+	FileOperation saveDataFile;
+	string initdirName = "Data";//保存数据的根文件夹
+	Mat source = imread("test.bmp");//读取一张图片用于测试
+	PointCloud<PointXYZRGB> sourceCloud;//读取一个点云
+	pcl::io::loadPCDFile("cloud_cluster_0.pcd", sourceCloud);
+	vector<Mat> leftImgs;
+	vector<Mat> rightImgs;
+	for (int i = 0; i < 10; i++)
+	{
+		leftImgs.push_back(source);
+		rightImgs.push_back(source);
+	}
+	saveDataFile.saveDataInFolder(initdirName,leftImgs, rightImgs, sourceCloud);
+	system("pause");
+	return 0;
+ }
+————————————————
+版权声明：本文为CSDN博主「weixin_43392684」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/weixin_43392684/article/details/91444504

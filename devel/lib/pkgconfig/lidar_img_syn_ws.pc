@@ -1,0 +1,8 @@
+prefix=/home/janeqin/code/lidar_img_syn_ws/devel
+
+Name: lidar_img_syn_ws
+Description: Description of lidar_img_syn_ws
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs message_filters cv_bridge
