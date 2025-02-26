@@ -1,12 +1,13 @@
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-CMakeUserPresets.json
+# Build directories
+/build/
+/devel/
+/install/
+
+# ROS-specific
+*.log
+*.bak
+*.swp
+
+# IDE files (if applicable)
+.vscode/
+.idea/
